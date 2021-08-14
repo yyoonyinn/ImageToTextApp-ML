@@ -54,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setSubtitle("Click + button to insert image");
+        if (actionBar != null) {
+            actionBar.setSubtitle("Click + button to insert image");
+        }
 
         mResultEt = findViewById(R.id.resultEt);
         mPreviewIv = findViewById(R.id.imageIv);
@@ -175,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         //intent to pick image from gallery
         Intent intent = new Intent(Intent.ACTION_PICK);
         //set intent type to image
-        intent.setType("image");
+        intent.setType("image/*");
         startActivityForResult(intent,IMAGE_PICK_GALLERY_CODE);
 
     }
