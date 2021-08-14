@@ -1,0 +1,20 @@
+Android SDK: Adding the JAR in Android Studio:
+web => https://retentionscience.zendesk.com/hc/en-us/articles/360046780353-Android-SDK-Adding-the-JAR-in-Android-Studio
+implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+lib cardView:
+web => https://developer.android.com/jetpack/androidx/releases/cardview#groovy
+implementation "androidx.cardview:cardview:1.0.0"
+
+lib set-up project:
+web => https://developer.android.com/training/testing/set-up-project
+androidTestImplementation 'androidx.test:runner:1.1.0'
+
+
+lib image crop:
+web => https://github.com/ArthurHub/Android-Image-Cropper
+implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+
+lib image to test google:
+web => https://developers.google.com/android/guides/releases
+implementation 'com.google.android.gms:play-services-vision:20.1.3'

@@ -54,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setSubtitle("Click + button to insert image");
+        if (actionBar != null) {
+            actionBar.setSubtitle("Click + button to insert image");
+        }
 
         mResultEt = findViewById(R.id.resultEt);
         mPreviewIv = findViewById(R.id.imageIv);
@@ -131,9 +133,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.create().show(); //show dialog
     }
 
-
-
-
     private boolean checkCameraPermission() {
 
         //check camera permission and return the result
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         //intent to pick image from gallery
         Intent intent = new Intent(Intent.ACTION_PICK);
         //set intent type to image
-        intent.setType("image");
+        intent.setType("image/*");
         startActivityForResult(intent,IMAGE_PICK_GALLERY_CODE);
 
     }
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
     //got image from camera
         if(resultCode == RESULT_OK){
             if(resultCode == IMAGE_PICK_GALLERY_CODE){
-                //got image from gallery now crop it
+                //got image from gallery now crop itf
                 CropImage.activity(data.getData())
                         .setGuidelines(CropImageView.Guidelines.ON)//enable image guidlines
                         .start(this);
