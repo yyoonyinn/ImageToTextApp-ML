@@ -26,10 +26,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.text.FirebaseVisionText;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -243,23 +250,31 @@ public class MainActivity extends AppCompatActivity {
                 BitmapDrawable bitmapDrawable = (BitmapDrawable) mPreviewIv.getDrawable();
                 Bitmap bitmap = bitmapDrawable.getBitmap();
 
-                TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
-                if (!recognizer.isOperational()) {
-                    Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-                } else {
-                    Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                    SparseArray<TextBlock> items = recognizer.detect(frame);
-                    StringBuilder sb = new StringBuilder();
-
-                    //get text from sb until there is no text
-                    for (int i = 0; i < items.size(); i++) {
-                        TextBlock myItem = items.valueAt(i);
-                        sb.append(myItem.getValue());
-                        sb.append("\n");
+                //process the image
+                //1. create a FirebaseVisionImage object from a Bitmap object
+                FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromBitmap(bitmap);
+                //2. Get an instance of FirebaseVision
+                FirebaseVision firebaseVision = FirebaseVision.getInstance();
+                //3. Create an instance of FirebaseVisionTextRecognizer
+                FirebaseVisionTextRecognizer firebaseVisionTextRecognizer = firebaseVision.getOnDeviceTextRecognizer();
+                //4. Create a task to process the image
+                Task<FirebaseVisionText> task = firebaseVisionTextRecognizer.processImage(firebaseVisionImage);
+                //5. if task is success
+                task.addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                        String s = firebaseVisionText.getText();
+                        mResultEt.setText(s);
                     }
-                    //set text to edit text
-                    mResultEt.setText(sb.toString());
-                }
+                });
+                //6. if task is failure
+                task.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 //if there is any error show it
                 Exception error = result.getError();
