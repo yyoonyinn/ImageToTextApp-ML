@@ -180,29 +180,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //handle permission result
-    @SuppressLint("MissingSuperCall")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
             case CAMERA_REQUEST_CODE:
-                if(grantResults.length>0){
+                if (grantResults.length > 0) {
                     boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeStorageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if(cameraAccepted && writeStorageAccepted){
+                    boolean writeStorageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    if (cameraAccepted && writeStorageAccepted) {
                         pickCamera();
-                    }
-                    else{
+                    } else {
                         Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;
             case STORAGE_REQUEST_CODE:
-                if(grantResults.length>0){
+                if (grantResults.length > 0) {
                     boolean writeStorageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if(writeStorageAccepted){
+                    if (writeStorageAccepted) {
                         pickGallery();
-                    }
-                    else{
+                    } else {
                         Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -210,29 +208,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //handle image result
-    @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-    //got image from camera
-        if(resultCode == RESULT_OK){
-            if(resultCode == IMAGE_PICK_GALLERY_CODE){
-                //got image from gallery now crop itf
+        //got image from camera
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == IMAGE_PICK_GALLERY_CODE) { //Crop image from gallery
+                //got image from gallery now crop it
+                Toast.makeText(this, "to crop gallery", Toast.LENGTH_SHORT).show();
+
                 CropImage.activity(data.getData())
-                        .setGuidelines(CropImageView.Guidelines.ON)//enable image guidlines
+                        .setGuidelines(CropImageView.Guidelines.ON)//enable image guidelines
                         .start(this);
 
             }
-            if(requestCode == IMAGE_PICK_CAMERA_CODE){
+            if (requestCode == IMAGE_PICK_CAMERA_CODE) { //Crop image taken by camera
                 //got image from camera now crop it
+                Toast.makeText(this, "to crop gallery", Toast.LENGTH_SHORT).show();
                 CropImage.activity(image_uri)
-                        .setGuidelines(CropImageView.Guidelines.ON)//enable image guidlines
+                        .setGuidelines(CropImageView.Guidelines.ON)//enable image guidelines
                         .start(this);
             }
         }
         //get cropped image
-        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if(resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri(); // get image uri
 
                 //set image to image view
@@ -243,16 +244,15 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap bitmap = bitmapDrawable.getBitmap();
 
                 TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
-                if(!recognizer.isOperational()){
+                if (!recognizer.isOperational()) {
                     Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-                }
-                else{
+                } else {
                     Frame frame = new Frame.Builder().setBitmap(bitmap).build();
                     SparseArray<TextBlock> items = recognizer.detect(frame);
                     StringBuilder sb = new StringBuilder();
 
                     //get text from sb until there is no text
-                    for(int i=0; i<items.size(); i++ ){
+                    for (int i = 0; i < items.size(); i++) {
                         TextBlock myItem = items.valueAt(i);
                         sb.append(myItem.getValue());
                         sb.append("\n");
@@ -260,11 +260,10 @@ public class MainActivity extends AppCompatActivity {
                     //set text to edit text
                     mResultEt.setText(sb.toString());
                 }
-            }
-            else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 //if there is any error show it
                 Exception error = result.getError();
-                Toast.makeText(this, ""+error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "" + error, Toast.LENGTH_SHORT).show();
             }
         }
 
